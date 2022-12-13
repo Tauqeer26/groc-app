@@ -1,38 +1,25 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:multi_store_app/widgets/appbar_widgets.dart';
+import 'package:multi_store_app/models/product_model.dart';
 import 'package:staggered_grid_view_flutter/widgets/staggered_grid_view.dart';
 import 'package:staggered_grid_view_flutter/widgets/staggered_tile.dart';
 
-import '../models/product_model.dart';
-
-class SubcategProducts extends StatefulWidget {
-  final String mainCategName;
-  final String subCategName;
-  const SubcategProducts(
-      {Key? key, required this.subCategName, required this.mainCategName})
-      : super(key: key);
+class ShoesGalleryScreen extends StatefulWidget {
+  const ShoesGalleryScreen({Key? key}) : super(key: key);
 
   @override
-  State<SubcategProducts> createState() => _SubcategProductsState();
+  _ShoesGalleryScreenState createState() => _ShoesGalleryScreenState();
 }
 
-class _SubcategProductsState extends State<SubcategProducts> {
-  @override
-  Widget build(BuildContext context) {
-      final Stream<QuerySnapshot> _prodcutsStream = FirebaseFirestore.instance
+class _ShoesGalleryScreenState extends State<ShoesGalleryScreen> {
+  final Stream<QuerySnapshot> _prodcutsStream = FirebaseFirestore.instance
       .collection('products')
-      .where('maincateg', isEqualTo: widget.mainCategName).where('subcateg',isEqualTo: widget.subCategName)
+      .where('maincateg', isEqualTo: 'shoes')
       .snapshots();
 
-    return Scaffold(
-      appBar: AppBar(
-        leading: const AppbarBackButton(),
-        elevation: 0,
-        backgroundColor: Colors.white,
-        title: AppbarTitle(title: widget.subCategName),
-      ),
-      body: StreamBuilder<QuerySnapshot>(
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<QuerySnapshot>(
       stream: _prodcutsStream,
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.hasError) {
@@ -73,7 +60,6 @@ class _SubcategProductsState extends State<SubcategProducts> {
               staggeredTileBuilder: (context) => const StaggeredTile.fit(1)),
         );
       },
-    ),
     );
   }
 }

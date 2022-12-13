@@ -10,18 +10,18 @@ import 'package:multi_store_app/widgets/snackbar.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
-class CustomerRegister extends StatefulWidget {
-  const CustomerRegister({Key? key}) : super(key: key);
+class SupplierRegister extends StatefulWidget {
+  const SupplierRegister({Key? key}) : super(key: key);
 
   @override
-  _CustomerRegisterState createState() => _CustomerRegisterState();
+  _SupplierRegisterState createState() => _SupplierRegisterState();
 }
 
-class _CustomerRegisterState extends State<CustomerRegister> {
-  late String name;
+class _SupplierRegisterState extends State<SupplierRegister> {
+  late String storeName;
   late String email;
   late String password;
-  late String profileImage;
+  late String storeLogo;
   late String _uid;
   bool processing = false;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -34,8 +34,8 @@ class _CustomerRegisterState extends State<CustomerRegister> {
   XFile? _imageFile;
   dynamic _pickedImageError;
 
-  CollectionReference customers =
-      FirebaseFirestore.instance.collection('customers');
+  CollectionReference suppliers =
+      FirebaseFirestore.instance.collection('suppliers');
 
   void _pickImageFromCamera() async {
     try {
@@ -85,27 +85,26 @@ class _CustomerRegisterState extends State<CustomerRegister> {
 
           firebase_storage.Reference ref = firebase_storage
               .FirebaseStorage.instance
-              .ref('cust-images/$email.jpg');
+              .ref('supp-images/$email.jpg');
 
           await ref.putFile(File(_imageFile!.path));
           _uid = FirebaseAuth.instance.currentUser!.uid;
 
-          profileImage = await ref.getDownloadURL();
-          await customers.doc(_uid).set({
-            'name': name,
+          storeLogo = await ref.getDownloadURL();
+          await suppliers.doc(_uid).set({
+            'storename': storeName,
             'email': email,
-            'profileimage': profileImage,
+            'storelogo': storeLogo,
             'phone': '',
-            'address': '',
-            'cid': _uid,
-            'Product name': '',
+            'sid': _uid,
+            'coverimage': '',
           });
           _formKey.currentState!.reset();
           setState(() {
             _imageFile = null;
           });
 
-          Navigator.pushReplacementNamed(context, '/customer_login');
+          Navigator.pushReplacementNamed(context, '/supplier_login');
         } on FirebaseAuthException catch (e) {
           if (e.code == 'weak-password') {
             setState(() {
@@ -159,7 +158,7 @@ class _CustomerRegisterState extends State<CustomerRegister> {
                                 vertical: 20, horizontal: 40),
                             child: CircleAvatar(
                               radius: 60,
-                              backgroundColor: Colors.purpleAccent,
+                              backgroundColor: Colors.white,
                               backgroundImage: _imageFile == null
                                   ? null
                                   : FileImage(File(_imageFile!.path)),
@@ -169,10 +168,12 @@ class _CustomerRegisterState extends State<CustomerRegister> {
                             children: [
                               Container(
                                 decoration: const BoxDecoration(
-                                    color: Colors.purple,
+                                    color: Color.fromARGB(255, 7, 63, 147),
                                     borderRadius: BorderRadius.only(
                                         topLeft: Radius.circular(15),
-                                        topRight: Radius.circular(15))),
+                                        topRight: Radius.circular(15),
+                                        ),
+                                      ),
                                 child: IconButton(
                                   icon: const Icon(
                                     Icons.camera_alt,
@@ -188,7 +189,7 @@ class _CustomerRegisterState extends State<CustomerRegister> {
                               ),
                               Container(
                                 decoration: const BoxDecoration(
-                                    color: Colors.purple,
+                                    color: Color.fromARGB(255, 7, 63, 147),
                                     borderRadius: BorderRadius.only(
                                         bottomLeft: Radius.circular(15),
                                         bottomRight: Radius.circular(15))),
@@ -216,7 +217,7 @@ class _CustomerRegisterState extends State<CustomerRegister> {
                             return null;
                           },
                           onChanged: (value) {
-                            name = value;
+                            storeName = value;
                           },
                           //    controller: _namecontroller,
                           decoration: textFormDecoration.copyWith(
@@ -286,7 +287,7 @@ class _CustomerRegisterState extends State<CustomerRegister> {
                         actionLabel: 'Log In',
                         onPressed: () {
                           Navigator.pushReplacementNamed(
-                              context, '/customer_login');
+                              context, '/supplier_login');
                         },
                       ),
                       processing == true

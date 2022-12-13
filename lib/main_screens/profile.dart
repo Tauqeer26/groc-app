@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:multi_store_app/customer_screens/customer_orders.dart';
 import 'package:multi_store_app/customer_screens/wishlist.dart';
@@ -6,16 +8,41 @@ import 'package:multi_store_app/main_screens/cart.dart';
 import 'package:multi_store_app/widgets/appbar_widgets.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({Key? key}) : super(key: key);
+  final String documentId;
+  const ProfileScreen({Key? key, required this.documentId}) : super(key: key);
 
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  CollectionReference customers =
+      FirebaseFirestore.instance.collection('customers');
+  CollectionReference anonymous =
+      FirebaseFirestore.instance.collection('anonymous');
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return FutureBuilder<DocumentSnapshot>(
+      future: FirebaseAuth.instance.currentUser!.isAnonymous
+          ? anonymous.doc(widget.documentId).get()
+          : customers.doc(widget.documentId).get(),
+      builder:
+          (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+        if (snapshot.hasError) {
+          return const Text("Something went wrong");
+        }
+
+        if (snapshot.hasData && !snapshot.data!.exists) {
+          return const Text("Document does not exist");
+        }
+
+        if (snapshot.connectionState == ConnectionState.done) {
+          Map<String, dynamic> data =
+              snapshot.data!.data() as Map<String, dynamic>;
+          return /* Text("Full Name: ${data['full_name']} ${data['last_name']}"); */
+          
+          
+           Scaffold(
       backgroundColor: Colors.grey.shade300,
       body: Stack(
         children: [
@@ -23,7 +50,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             height: 230,
             decoration: const BoxDecoration(
                 gradient:
-                    LinearGradient(colors: [Colors.yellow, Colors.brown])),
+                    LinearGradient(colors: [Color.fromARGB(255, 10, 67, 153), Colors.white])),
           ),
           CustomScrollView(
             slivers: [
@@ -47,20 +74,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       background: Container(
                         decoration: const BoxDecoration(
                             gradient: LinearGradient(
-                                colors: [Colors.yellow, Colors.brown])),
+                                colors: [Color.fromARGB(255, 10, 67, 153), Colors.white])),
                         child: Padding(
                           padding: const EdgeInsets.only(top: 25, left: 30),
                           child: Row(
                             children: [
-                              const CircleAvatar(
+                              data['profileimage']==''? const CircleAvatar(
                                 radius: 50,
                                 backgroundImage:
-                                    AssetImage('images/inapp/guest.jpg'),
+                                    //NetworkImage(data['profileimage']),
+                                     AssetImage('images/inapp/guest.jpg'),
+                              ): CircleAvatar(
+                                radius: 50,
+                                backgroundImage:
+                                    NetworkImage(data['profileimage']),
+                                    // AssetImage('images/inapp/guest.jpg'),
                               ),
+                              // CircleAvatar(
+                              //   radius: 50,
+                              //   backgroundImage:
+                              //       NetworkImage(data['profileimage']),
+                              //       // AssetImage('images/inapp/guest.jpg'),
+                              // ),
                               Padding(
                                 padding: const EdgeInsets.only(left: 25),
                                 child: Text(
-                                  'guest'.toUpperCase(),
+                                  data['name']==''?'guest':data['name'].toUpperCase(),
                                   style: const TextStyle(
                                       fontSize: 24,
                                       fontWeight: FontWeight.w600),
@@ -100,7 +139,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   child: Text(
                                     'Cart',
                                     style: TextStyle(
-                                        color: Colors.yellow, fontSize: 20),
+                                        color: Colors.white, fontSize: 20),
                                   ),
                                 ),
                               ),
@@ -115,7 +154,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           ),
                           Container(
-                            color: Colors.yellow,
+                            color: Colors.blue[900],
                             child: TextButton(
                               child: SizedBox(
                                 height: 40,
@@ -124,7 +163,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   child: Text(
                                     'Orders',
                                     style: TextStyle(
-                                        color: Colors.black54, fontSize: 20),
+                                        color: Colors.white, fontSize: 20),
                                   ),
                                 ),
                               ),
@@ -151,7 +190,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   child: Text(
                                     'Wishlist',
                                     style: TextStyle(
-                                        color: Colors.yellow, fontSize: 20),
+                                        color: Colors.white, fontSize: 20),
                                   ),
                                 ),
                               ),
@@ -171,11 +210,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       color: Colors.grey.shade300,
                       child: Column(
                         children: [
-                          const SizedBox(
-                            height: 150,
-                            child: Image(
-                                image: AssetImage('images/inapp/logo.jpg')),
-                          ),
+                          // const SizedBox(
+                          //   height: 150,
+                          //   child: Image(
+                          //       image: AssetImage('images/inapp/logo.jpg')),
+                          // ),
                           const ProfileHeaderLabel(
                             headerLabel: '  Account Info.  ',
                           ),
@@ -187,20 +226,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(16)),
                               child: Column(
-                                children: const [
+                                children: [
                                   RepeatedListTile(
                                       icon: Icons.email,
-                                      subTitle: 'example@email.com',
+                                      subTitle: data['email']==""?'example@email.com':data['email'],
                                       title: 'Email Address'),
-                                  YellowDivider(),
+                                  const YellowDivider(),
                                   RepeatedListTile(
                                       icon: Icons.phone,
-                                      subTitle: '+11111',
+                                      subTitle: data['phone'],
                                       title: 'Phone No.'),
-                                  YellowDivider(),
+                                  const YellowDivider(),
                                   RepeatedListTile(
                                       icon: Icons.location_pin,
-                                      subTitle: 'example: 140 - st - New Gersy',
+                                      subTitle: data['address'],
                                       title: 'Address'),
                                 ],
                               ),
@@ -234,9 +273,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     title: 'Log Out',
                                     icon: Icons.logout,
                                     onPressed: () async{
-                                      await FirebaseAuth.instance.signOut();
-                                      Navigator.pushReplacementNamed(
-                                          context, '/welcome_screen');
+
+                                      showCupertinoModalPopup<void>(
+      context: context,
+      builder: (BuildContext context) => CupertinoAlertDialog(
+        title: const Text('Alert'),
+        content: const Text('Are you sure you want to log out?'),
+        actions: <CupertinoDialogAction>[
+          CupertinoDialogAction(
+            /// This parameter indicates this action is the default,
+            /// and turns the action's text to bold text.
+            isDefaultAction: true,
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text('No'),
+          ),
+          CupertinoDialogAction(
+            /// This parameter indicates the action would perform
+            /// a destructive action such as deletion, and turns
+            /// the action's text color to red.
+            isDestructiveAction: true,
+            onPressed: ()async {
+              await FirebaseAuth.instance.signOut();
+              Navigator.pop(context);
+              Navigator.pushReplacementNamed(
+              context, '/welcome_screen');
+            },
+            child: const Text('Yes'),
+          ),
+        ],
+      ),
+    );
+
+ 
                                     },
                                   ),
                                 ],
@@ -254,6 +324,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ],
       ),
     );
+        }
+        return const Text('Good');
+          }
+    );
   }
 }
 
@@ -267,7 +341,7 @@ class YellowDivider extends StatelessWidget {
     return const Padding(
       padding: EdgeInsets.symmetric(horizontal: 40),
       child: Divider(
-        color: Colors.yellow,
+        color: Color.fromARGB(255, 4, 63, 151),
         thickness: 1,
       ),
     );

@@ -17,11 +17,12 @@ class YellowButton extends StatelessWidget {
       height: 35,
       width: MediaQuery.of(context).size.width * width,
       decoration: BoxDecoration(
-          color: Colors.yellow, borderRadius: BorderRadius.circular(25)),
+          color: const Color.fromARGB(255, 9, 64, 147), borderRadius: BorderRadius.circular(25)),
       child: MaterialButton(
         onPressed: onPressed,
         child: Text(
           label,
+          style: const  TextStyle(color: Colors.white),
         ),
       ),
     );

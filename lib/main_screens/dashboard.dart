@@ -1,3 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:multi_store_app/dashboard_components/edit_business.dart';
 import 'package:multi_store_app/dashboard_components/manage_products.dart';
@@ -49,7 +51,38 @@ class DashboardScreen extends StatelessWidget {
         actions: [
           IconButton(
               onPressed: () {
-                Navigator.pushReplacementNamed(context, '/welcome_screen');
+                
+                                      showCupertinoModalPopup<void>(
+      context: context,
+      builder: (BuildContext context) => CupertinoAlertDialog(
+        title: const Text('Alert'),
+        content: const Text('Are you sure you want to log out?'),
+        actions: <CupertinoDialogAction>[
+          CupertinoDialogAction(
+            /// This parameter indicates this action is the default,
+            /// and turns the action's text to bold text.
+            isDefaultAction: true,
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text('No'),
+          ),
+          CupertinoDialogAction(
+            /// This parameter indicates the action would perform
+            /// a destructive action such as deletion, and turns
+            /// the action's text color to red.
+            isDestructiveAction: true,
+            onPressed: ()async {
+              await FirebaseAuth.instance.signOut();
+              Navigator.pop(context);
+              Navigator.pushReplacementNamed(
+              context, '/welcome_screen');
+            },
+            child: const Text('Yes'),
+          ),
+        ],
+      ),
+    );
               },
               icon: const Icon(
                 Icons.logout,

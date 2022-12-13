@@ -34,7 +34,7 @@ class MenCategory extends StatelessWidget {
                           return SubcategModel(
                             mainCategName: 'men',
                             subCategName: men[index],
-                            assetName: 'images/men/men$index.jpg',
+                            assetName: 'images/men/men0.jpg',
                             assetLabel: men[index],
                           );
                         }),

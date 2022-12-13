@@ -16,7 +16,7 @@ class FakeSearch extends StatelessWidget {
       child: Container(
         height: 35,
         decoration: BoxDecoration(
-            border: Border.all(color: Colors.yellow, width: 1.5),
+            border: Border.all(color: const Color.fromARGB(255, 11, 71, 160), width: 1.5),
             borderRadius: BorderRadius.circular(25)),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -40,12 +40,12 @@ class FakeSearch extends StatelessWidget {
               height: 32,
               width: 75,
               decoration: BoxDecoration(
-                  color: Colors.yellow,
+                  color: Colors.blue[900],
                   borderRadius: BorderRadius.circular(25)),
               child: const Center(
                 child: Text(
                   'Search',
-                  style: TextStyle(color: Colors.grey, fontSize: 16),
+                  style: TextStyle(color: Colors.white, fontSize: 16),
                 ),
               ),
             )
